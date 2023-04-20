@@ -1,0 +1,187 @@
+#pragma version =0.4.3;
+#pragma allow-post-modification;
+#pragma compute-asm-ltr;
+
+#include "sample_StakingContract.headers.fc";
+#include "sample_StakingContract.stdlib.fc";
+#include "sample_StakingContract.constants.fc";
+#include "sample_StakingContract.storage.fc";
+
+;;
+;; Contract StakingContract functions
+;;
+
+(int, int, int, slice, cell) $StakingContract$_contract_init(slice $_nft) impure inline_ref {
+    var (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)) = (0, 86400, 15552000, null(), null());
+    $self'collection_address = $_nft;
+    return ($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records);
+}
+
+((int, int, int, slice, cell), ()) $StakingContract$_fun_stake((int, int, int, slice, cell) $self, int $_nftId, slice $_sender, int $_duration, int $_level) impure inline_ref {
+    var (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)) = $self;
+    throw_unless(39534, ( (($_duration >= $self'minDuration)) ? (($_duration <= $self'maxDuration)) : (false) ));
+    int $weight = ($_level * $_duration);
+    int $unlock_time = (now() + $_duration);
+    var ($new_info'sender, $new_info'weight, $new_info'unlock_time) = $Info$_constructor_sender_weight_unlock_time($_sender, $weight, $unlock_time);
+    $self'stake_records~__tact_dict_set_int_cell(257, $_nftId, $Info$_store_cell(($new_info'sender, $new_info'weight, $new_info'unlock_time)));
+    $self'totalWeight = ($self'totalWeight + $weight);
+    return (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records), ());
+}
+
+((int, int, int, slice, cell), int) $StakingContract$_fun_claimable((int, int, int, slice, cell) $self, int $nft_id) impure inline_ref {
+    var (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)) = $self;
+    var ($temp_info'sender, $temp_info'weight, $temp_info'unlock_time) = $Info$_not_null($Info$_load_opt(__tact_dict_get_int_cell($self'stake_records, 257, $nft_id)));
+    int $ratio = ((1000000000 * $temp_info'weight) / $self'totalWeight);
+    return (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records), $ratio);
+}
+
+((int, int, int, slice, cell), ()) $StakingContract$_fun_claim((int, int, int, slice, cell) $self, int $_nftId) impure inline_ref {
+    var (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)) = $self;
+    int $token = ((__tact_my_balance() * ($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)~$StakingContract$_fun_claimable($_nftId)) / 1000000000);
+    var ($temp'sender, $temp'weight, $temp'unlock_time) = $Info$_not_null($Info$_load_opt(__tact_dict_get_int_cell($self'stake_records, 257, $_nftId)));
+    $global_send($SendParameters$_constructor_to_value_mode($temp'sender, $token, 2));
+    return (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records), ());
+}
+
+((int, int, int, slice, cell), (int)) $StakingContract$_fun_stake_data((int, int, int, slice, cell) $self) impure inline_ref {
+    var (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)) = $self;
+    return (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records), $StakeData$_constructor_totalWeight($self'totalWeight));
+}
+
+((int, int, int, slice, cell), (slice, int, int)) $StakingContract$_fun_get_user_list((int, int, int, slice, cell) $self, int $_nftID) impure inline_ref {
+    var (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)) = $self;
+    return (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records), $Info$_not_null($Info$_load_opt(__tact_dict_get_int_cell($self'stake_records, 257, $_nftID))));
+}
+
+;;
+;; Receivers of a Contract StakingContract
+;;
+
+(((int, int, int, slice, cell)), ()) $StakingContract$_internal_binary_StakeNFT((int, int, int, slice, cell) $self, (slice, int, int, int) $msg) impure inline {
+    var ($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records) = $self;
+    var ($msg'sender_nft_item_address, $msg'nftId, $msg'duration, $msg'level) = $msg;
+    var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
+    throw_unless(25790, ( __tact_slice_eq_bits($msg'sender_nft_item_address, $ctx'sender) ));
+    ($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)~$StakingContract$_fun_stake($msg'nftId, $ctx'sender, $msg'duration, $msg'level);
+    $global_send($SendParameters$_constructor_to_value_mode_bounce_body($ctx'sender, 0, (64 + 2), false, __gen_cell_comment_d912f7ee3e75c4e4831d284ad1ab1d5faede9e8630ca2c3e9e4cf16448ba7b37()));
+    return (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records), ());
+}
+
+(((int, int, int, slice, cell)), ()) $StakingContract$_internal_binary_ClaimNFT((int, int, int, slice, cell) $self, (int) $msg) impure inline {
+    var ($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records) = $self;
+    var ($msg'nftId) = $msg;
+    var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
+    var ($Info'sender, $Info'weight, $Info'unlock_time) = $Info$_not_null($Info$_load_opt(__tact_dict_get_int_cell($self'stake_records, 257, $msg'nftId)));
+    throw_unless(25790, ( __tact_slice_eq_bits($Info'sender, $ctx'sender) ));
+    ($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records)~$StakingContract$_fun_claim($msg'nftId);
+    return (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records), ());
+}
+
+(((int, int, int, slice, cell)), ()) %$StakingContract$_internal_empty((int, int, int, slice, cell) $self) impure inline {
+    var ($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records) = $self;
+    return (($self'totalWeight, $self'minDuration, $self'maxDuration, $self'collection_address, $self'stake_records), ());
+}
+
+;;
+;; Get methods of a Contract StakingContract
+;;
+
+_ %claimable(int $$nft_id) method_id(116064) {
+    int $nft_id = $$nft_id;
+    var self = $StakingContract$_contract_load();
+    var res = self~$StakingContract$_fun_claimable($nft_id);
+    return res;
+}
+
+_ %stake_data() method_id(98452) {
+    var self = $StakingContract$_contract_load();
+    var res = self~$StakingContract$_fun_stake_data();
+    return $StakeData$_to_external(res);
+}
+
+_ %get_user_list(int $$_nftID) method_id(129758) {
+    int $_nftID = $$_nftID;
+    var self = $StakingContract$_contract_load();
+    var res = self~$StakingContract$_fun_get_user_list($_nftID);
+    return $Info$_to_external(res);
+}
+
+_ supported_interfaces() method_id {
+    return (
+        "org.ton.introspection.v0"H >> 128,
+        "org.ton.abi.ipfs.v0"H >> 128,
+        "org.ton.deploy.lazy.v0"H >> 128,
+        "org.ton.chain.workchain.v0"H >> 128
+    );
+}
+
+_ get_abi_ipfs() method_id {
+    return "ipfs://Qmdh5FN6be1q1H8rbE3xMXNkrHYP97yM5JS2PzjALE2B6B";
+}
+
+_ lazy_deployment_completed() method_id {
+    return get_data().begin_parse().load_int(1);
+}
+
+;;
+;; Routing of a Contract StakingContract
+;;
+
+((int, int, int, slice, cell), int) $StakingContract$_contract_router_internal((int, int, int, slice, cell) self, int msg_bounced, slice in_msg) impure inline_ref {
+    ;; Handle bounced messages
+    if (msg_bounced) {
+        return (self, true);
+    }
+    
+    ;; Parse incoming message
+    int op = 0;
+    if (slice_bits(in_msg) >= 32) {
+        op = in_msg.preload_uint(32);
+    }
+    
+    
+    ;; Receive StakeNFT message
+    if (op == 2222135011) {
+        var msg = in_msg~$StakeNFT$_load();
+        self~$StakingContract$_internal_binary_StakeNFT(msg);
+        return (self, true);
+    }
+    
+    ;; Receive ClaimNFT message
+    if (op == 912664725) {
+        var msg = in_msg~$ClaimNFT$_load();
+        self~$StakingContract$_internal_binary_ClaimNFT(msg);
+        return (self, true);
+    }
+    
+    ;; Receive empty message
+    if ((op == 0) & (slice_bits(in_msg) <= 32)) {
+        self~%$StakingContract$_internal_empty();
+        return (self, true);
+    }
+    
+    return (self, false);
+}
+
+() recv_internal(int msg_value, cell in_msg_cell, slice in_msg) impure {
+    
+    ;; Context
+    var cs = in_msg_cell.begin_parse();
+    var msg_flags = cs~load_uint(4);
+    var msg_bounced = -(msg_flags & 1);
+    slice msg_sender_addr = __tact_verify_address(cs~load_msg_addr());
+    __tact_context = (msg_bounced, msg_sender_addr, msg_value, cs);
+    __tact_context_sender = msg_sender_addr;
+    
+    ;; Load contract data
+    var self = $StakingContract$_contract_load();
+    
+    ;; Handle operation
+    int handled = self~$StakingContract$_contract_router_internal(msg_bounced, in_msg);
+    
+    ;; Throw if not handled
+    throw_unless(130, handled);
+    
+    ;; Persist state
+    $StakingContract$_contract_store(self);
+}

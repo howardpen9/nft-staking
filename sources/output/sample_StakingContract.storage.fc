@@ -1,0 +1,159 @@
+;;
+;; Type: SendParameters
+;; TLB: _ bounce:bool to:address value:int257 mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell = SendParameters
+;;
+
+((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode(slice to, int value, int mode) inline {
+    return (true, to, value, mode, null(), null(), null());
+}
+
+((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode_bounce_body(slice to, int value, int mode, int bounce, cell body) inline {
+    return (bounce, to, value, mode, body, null(), null());
+}
+
+;;
+;; Type: StakeNFT
+;; Header: 0x847316e3
+;; TLB: stake_nft#847316e3 sender_nft_item_address:address nftId:uint32 duration:uint256 level:int257 = StakeNFT
+;;
+
+(slice, ((slice, int, int, int))) $StakeNFT$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 2222135011);
+    var v'sender_nft_item_address = sc_0~__tact_load_address();
+    var v'nftId = sc_0~load_uint(32);
+    var v'duration = sc_0~load_uint(256);
+    var v'level = sc_0~load_int(257);
+    return (sc_0, (v'sender_nft_item_address, v'nftId, v'duration, v'level));
+}
+
+;;
+;; Type: ClaimNFT
+;; Header: 0x36662895
+;; TLB: claim_nft#36662895 nftId:uint32 = ClaimNFT
+;;
+
+(slice, ((int))) $ClaimNFT$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 912664725);
+    var v'nftId = sc_0~load_uint(32);
+    return (sc_0, (v'nftId));
+}
+
+;;
+;; Type: Info
+;; TLB: _ sender:address weight:int257 unlock_time:int257 = Info
+;;
+
+builder $Info$_store(builder build_0, (slice, int, int) v) inline {
+    var (v'sender, v'weight, v'unlock_time) = v;
+    build_0 = __tact_store_address(build_0, v'sender);
+    build_0 = build_0.store_int(v'weight, 257);
+    build_0 = build_0.store_int(v'unlock_time, 257);
+    return build_0;
+}
+
+cell $Info$_store_cell((slice, int, int) v) inline {
+    return $Info$_store(begin_cell(), v).end_cell();
+}
+
+(slice, ((slice, int, int))) $Info$_load(slice sc_0) inline {
+    var v'sender = sc_0~__tact_load_address();
+    var v'weight = sc_0~load_int(257);
+    var v'unlock_time = sc_0~load_int(257);
+    return (sc_0, (v'sender, v'weight, v'unlock_time));
+}
+
+tuple $Info$_as_optional((slice, int, int) v) inline {
+    var (v'sender, v'weight, v'unlock_time) = v;
+    return __tact_tuple_create_3(v'sender, v'weight, v'unlock_time);
+}
+
+tuple $Info$_load_opt(cell cl) inline {
+    if (null?(cl)) {
+        return null();
+    }
+    var sc = cl.begin_parse();
+    return $Info$_as_optional(sc~$Info$_load());
+}
+
+((slice, int, int)) $Info$_not_null(tuple v) inline {
+    throw_if(128, null?(v));
+    var (slice vvv'sender, int vvv'weight, int vvv'unlock_time) = __tact_tuple_destroy_3(v);
+    return (vvv'sender, vvv'weight, vvv'unlock_time);
+}
+
+(slice, int, int) $Info$_to_external(((slice, int, int)) v) inline {
+    var (v'sender, v'weight, v'unlock_time) = v; 
+    return (v'sender, v'weight, v'unlock_time);
+}
+
+((slice, int, int)) $Info$_constructor_sender_weight_unlock_time(slice sender, int weight, int unlock_time) inline {
+    return (sender, weight, unlock_time);
+}
+
+;;
+;; Type: StakeData
+;; TLB: _ totalWeight:int257 = StakeData
+;;
+
+(int) $StakeData$_to_external(((int)) v) inline {
+    var (v'totalWeight) = v; 
+    return (v'totalWeight);
+}
+
+((int)) $StakeData$_constructor_totalWeight(int totalWeight) inline {
+    return (totalWeight);
+}
+
+;;
+;; Type: StakingContract
+;;
+
+builder $StakingContract$_store(builder build_0, (int, int, int, slice, cell) v) inline {
+    var (v'totalWeight, v'minDuration, v'maxDuration, v'collection_address, v'stake_records) = v;
+    build_0 = build_0.store_uint(v'totalWeight, 256);
+    build_0 = build_0.store_uint(v'minDuration, 256);
+    build_0 = build_0.store_uint(v'maxDuration, 256);
+    var build_1 = begin_cell();
+    build_1 = __tact_store_address(build_1, v'collection_address);
+    build_1 = build_1.store_dict(v'stake_records);
+    build_0 = store_ref(build_0, build_1.end_cell());
+    return build_0;
+}
+
+(slice, ((int, int, int, slice, cell))) $StakingContract$_load(slice sc_0) inline {
+    var v'totalWeight = sc_0~load_uint(256);
+    var v'minDuration = sc_0~load_uint(256);
+    var v'maxDuration = sc_0~load_uint(256);
+    slice sc_1 = sc_0~load_ref().begin_parse();
+    var v'collection_address = sc_1~__tact_load_address();
+    var v'stake_records = sc_1~load_dict();
+    return (sc_0, (v'totalWeight, v'minDuration, v'maxDuration, v'collection_address, v'stake_records));
+}
+
+(slice, ((slice))) $StakingContract$init$_load(slice sc_0) inline {
+    var v'_nft = sc_0~__tact_load_address();
+    return (sc_0, (v'_nft));
+}
+
+(int, int, int, slice, cell) $StakingContract$_contract_load() impure inline_ref {
+    slice $sc = get_data().begin_parse();
+    __tact_context_sys = $sc~load_ref();
+    int $loaded = $sc~load_int(1);
+    if ($loaded) {
+        return $sc~$StakingContract$_load();
+    } else {
+        ;; Allow only workchain deployments
+        throw_unless(137, my_address().preload_uint(11) == 1024);
+        (slice _nft) = $sc~$StakingContract$init$_load();
+        $sc.end_parse();
+        return $StakingContract$_contract_init(_nft);
+    }
+}
+
+() $StakingContract$_contract_store((int, int, int, slice, cell) v) impure inline {
+    builder b = begin_cell();
+    b = b.store_ref(__tact_context_sys);
+    b = b.store_int(true, 1);
+    b = $StakingContract$_store(b, v);
+    set_data(b.end_cell());
+}

@@ -1,5 +1,5 @@
 import { toNano } from "ton";
-import { ContractSystem } from "@tact-lang/emulator";
+import { ContractSystem } from "ton-emulator";
 import { SampleTactContract } from "./output/sample_SampleTactContract";
 
 describe("contract", () => {
@@ -9,53 +9,47 @@ describe("contract", () => {
         let owner = system.treasure("owner");
         let nonOwner = system.treasure("non-owner");
         let contract = system.open(await SampleTactContract.fromInit(owner.address));
-        system.name(contract.address, "main");
-        let track = system.track(contract);
+        let track = system.track(contract.address);
         await contract.send(owner, { value: toNano(1) }, { $$type: "Deploy", queryId: 0n });
         await system.run();
-        expect(track.collect()).toMatchInlineSnapshot(`
+        expect(track.events()).toMatchInlineSnapshot(`
             [
               {
-                "$seq": 0,
-                "events": [
-                  {
-                    "$type": "deploy",
+                "type": "deploy",
+              },
+              {
+                "message": {
+                  "body": {
+                    "cell": "x{95973DCC0000000000000000}",
+                    "type": "cell",
                   },
+                  "bounce": true,
+                  "from": "kQAI-3FJVc_ywSuY4vq0bYrzR7S4Och4y7bTU_i5yLOB3A6P",
+                  "to": "kQCY8hRET2P9ghS3wLorMDazt37aCxg5cGcV0t0rYodDbYFu",
+                  "type": "internal",
+                  "value": 1000000000n,
+                },
+                "type": "received",
+              },
+              {
+                "gasUsed": 8564n,
+                "type": "processed",
+              },
+              {
+                "messages": [
                   {
-                    "$type": "received",
-                    "message": {
-                      "body": {
-                        "cell": "x{946A98B60000000000000000}",
-                        "type": "cell",
-                      },
-                      "bounce": true,
-                      "from": "@treasure(owner)",
-                      "to": "@main",
-                      "type": "internal",
-                      "value": 1000000000n,
+                    "body": {
+                      "cell": "x{D37FB8210000000000000000}",
+                      "type": "cell",
                     },
-                  },
-                  {
-                    "$type": "processed",
-                    "gasUsed": 8040n,
-                  },
-                  {
-                    "$type": "sent",
-                    "messages": [
-                      {
-                        "body": {
-                          "cell": "x{AFF90F570000000000000000}",
-                          "type": "cell",
-                        },
-                        "bounce": false,
-                        "from": "@main",
-                        "to": "@treasure(owner)",
-                        "type": "internal",
-                        "value": 990764000n,
-                      },
-                    ],
+                    "bounce": true,
+                    "from": "kQCY8hRET2P9ghS3wLorMDazt37aCxg5cGcV0t0rYodDbYFu",
+                    "to": "kQAI-3FJVc_ywSuY4vq0bYrzR7S4Och4y7bTU_i5yLOB3A6P",
+                    "type": "internal",
+                    "value": 990240000n,
                   },
                 ],
+                "type": "sent",
               },
             ]
         `);
@@ -66,30 +60,25 @@ describe("contract", () => {
         // Increment counter
         await contract.send(owner, { value: toNano(1) }, "increment");
         await system.run();
-        expect(track.collect()).toMatchInlineSnapshot(`
+        expect(track.events()).toMatchInlineSnapshot(`
             [
               {
-                "$seq": 1,
-                "events": [
-                  {
-                    "$type": "received",
-                    "message": {
-                      "body": {
-                        "text": "increment",
-                        "type": "text",
-                      },
-                      "bounce": true,
-                      "from": "@treasure(owner)",
-                      "to": "@main",
-                      "type": "internal",
-                      "value": 1000000000n,
-                    },
+                "message": {
+                  "body": {
+                    "text": "increment",
+                    "type": "text",
                   },
-                  {
-                    "$type": "processed",
-                    "gasUsed": 5082n,
-                  },
-                ],
+                  "bounce": true,
+                  "from": "kQAI-3FJVc_ywSuY4vq0bYrzR7S4Och4y7bTU_i5yLOB3A6P",
+                  "to": "kQCY8hRET2P9ghS3wLorMDazt37aCxg5cGcV0t0rYodDbYFu",
+                  "type": "internal",
+                  "value": 1000000000n,
+                },
+                "type": "received",
+              },
+              {
+                "gasUsed": 4669n,
+                "type": "processed",
               },
             ]
         `);
@@ -100,45 +89,38 @@ describe("contract", () => {
         // Non-owner
         await contract.send(nonOwner, { value: toNano(1) }, "increment");
         await system.run();
-        expect(track.collect()).toMatchInlineSnapshot(`
+        expect(track.events()).toMatchInlineSnapshot(`
             [
               {
-                "$seq": 2,
-                "events": [
-                  {
-                    "$type": "received",
-                    "message": {
-                      "body": {
-                        "text": "increment",
-                        "type": "text",
-                      },
-                      "bounce": true,
-                      "from": "@treasure(non-owner)",
-                      "to": "@main",
-                      "type": "internal",
-                      "value": 1000000000n,
-                    },
+                "message": {
+                  "body": {
+                    "text": "increment",
+                    "type": "text",
                   },
-                  {
-                    "$type": "failed",
-                    "errorCode": 4429,
-                    "errorMessage": "Invalid sender",
+                  "bounce": true,
+                  "from": "kQCVnZ1On-Ja4xfAfMbsq--jatb5sNnOUN421AHaXbebcCWH",
+                  "to": "kQCY8hRET2P9ghS3wLorMDazt37aCxg5cGcV0t0rYodDbYFu",
+                  "type": "internal",
+                  "value": 1000000000n,
+                },
+                "type": "received",
+              },
+              {
+                "errorCode": 4429,
+                "type": "failed",
+              },
+              {
+                "message": {
+                  "body": {
+                    "type": "empty",
                   },
-                  {
-                    "$type": "sent-bounced",
-                    "message": {
-                      "body": {
-                        "cell": "x{FFFFFFFF00000000696E6372656D656E74}",
-                        "type": "cell",
-                      },
-                      "bounce": false,
-                      "from": "@main",
-                      "to": "@treasure(non-owner)",
-                      "type": "internal",
-                      "value": 995112000n,
-                    },
-                  },
-                ],
+                  "bounce": false,
+                  "from": "kQCY8hRET2P9ghS3wLorMDazt37aCxg5cGcV0t0rYodDbYFu",
+                  "to": "kQCVnZ1On-Ja4xfAfMbsq--jatb5sNnOUN421AHaXbebcCWH",
+                  "type": "internal",
+                  "value": 995047000n,
+                },
+                "type": "sent-bounced",
               },
             ]
         `);

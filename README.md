@@ -1,25 +1,24 @@
-# TACT template project
+# TACT NFT standard implement
 
-This project has ready to use TACT compiler, typescript + jest with [tact-emulator](https://github.com/tact-lang/tact-emulator), example how to do tests.
+This is the project that can help you easily deploy an NFT collection on TON blockchain! (\*In test-net)
+
+Remember to go to `depoly.ts` to change the parameters you want!
 
 ```bash
-yarn test # To test contract
 yarn build # To build contract
 yarn deploy # To deploy contract
+yarn test # To test contract..?
 ```
-## Deployment
 
-To deploy contract you should:
+## Verify your NFT
 
-1) Specify `contract.tact` that will be used as entry point of your contract
-2) Configure `contract.deploy.ts` according to your `contract.tact` to generate a deployment link. In particular, it is necessary to correctly call the Init() function from the contract.
+-   https://testnet.explorer.tonnft.tools/
 
-If you renamed `contract.tact` to something else, you need to update `tact.config.json` correspondingly. For more information , see [Tact Documentation](https://docs.tact-lang.org/language/guides/config)
-## Testing
+## Overview
 
-Example of contract tests are in `contract.spec.ts`. For more information about testing, see [Tact Documentation](https://docs.tact-lang.org/language/guides/debug)
+[Tact documentation.](https://github.com/ton-community/tact/blob/main/docs/overview.md)
 
-To add new test files to contract you should create `*.spec.ts` files similar to template's one and they would be automatically included in testing.
+[Tact Dev TG group](https://t.me/tactlang)
 
 ## Licence
 
