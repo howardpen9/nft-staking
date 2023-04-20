@@ -1,6 +1,9 @@
-# TACT NFT standard implement
+# TACT NFT standard implement with Staking (Working in Progress)
 
 This is the project that can help you easily deploy an NFT collection on TON blockchain! (\*In test-net)
+
+You can stake NFT items in the staking contract and then claim the TON coins within the contract based on the share you have!
+
 
 Remember to go to `depoly.ts` to change the parameters you want!
 
